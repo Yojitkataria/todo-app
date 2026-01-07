@@ -1,54 +1,59 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const todoInput = document.getElementById("todo-input");
   const addTaskButton = document.getElementById("add-task-btn");
   const todoList = document.getElementById("todo-list");
 
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-  tasks.forEach(task => renderTask(task));
+  tasks.forEach(renderTask);
 
-  addTaskButton.addEventListener('click', () => {
+  addTaskButton.addEventListener("click", () => {
     const taskText = todoInput.value.trim();
     if (taskText === "") return;
 
     const newTask = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       text: taskText,
       completed: false,
     };
 
     tasks.push(newTask);
-    savedTasks();
-    renderTask(newTask);   
+    saveTasks();
+    renderTask(newTask);
     todoInput.value = "";
   });
 
   function renderTask(task) {
     const li = document.createElement("li");
-    li.setAttribute("data-id", task.id);
-    if(task.completed) li.classList.add("completed");
+    li.dataset.id = task.id;
+
+    if (task.completed) li.classList.add("completed");
+
     li.innerHTML = `
       <span>${task.text}</span>
       <button>delete</button>
     `;
 
-    li.addEventListener('click',(e)=>{
-      if(e.target.tagName == "BUTTON") return;
+    li.addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") return;
+
       task.completed = !task.completed;
       li.classList.toggle("completed");
-      savedTasks();
+      saveTasks();
     });
 
-    li.querySelector('button').addEventListener('click',(e)=>{
-      e.stopPropagation() //prevent toggle from firing
-      tasks = tasks.filter(t => t.id !== task.id)
+    li.querySelector("button").addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      tasks = tasks.filter((t) => t.id !== task.id);
       li.remove();
-      savedTasks();
-    })
+      saveTasks();
+    });
+
     todoList.appendChild(li);
   }
 
-  function savedTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+  function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
   }
 });
